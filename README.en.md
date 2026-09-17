@@ -1,6 +1,10 @@
 # CJK Sanitizer RU — Hermes plugin
 
-[Русский](README.md) · **English**
+<p>
+  <a href="README.md"><img src="assets/flag-ru.png" alt="RU" height="14"> Русский</a>
+  &nbsp;·&nbsp;
+  <img src="assets/flag-gb.png" alt="EN" height="14"> <strong>English</strong>
+</p>
 
 The Russian page is the primary one. This file is the English copy.
 
