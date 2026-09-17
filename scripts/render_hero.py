@@ -106,22 +106,28 @@ def render_flag_ru() -> None:
     img.save(ASSETS / "flag-ru.png", "PNG")
 
 
-def render_flag_gb() -> None:
-    """Compact Union Jack, readable at 16px height."""
+def render_flag_us() -> None:
+    """Compact Stars and Stripes, readable at 14px height."""
     w, h = 48, 32
-    img = Image.new("RGB", (w, h), (1, 33, 105))
+    red = (179, 25, 66)
+    img = Image.new("RGB", (w, h), (255, 255, 255))
     draw = ImageDraw.Draw(img)
-    # St Andrew saltire
-    draw.line((0, 0, w, h), fill=(255, 255, 255), width=8)
-    draw.line((0, h, w, 0), fill=(255, 255, 255), width=8)
-    draw.line((0, 0, w, h), fill=(200, 16, 46), width=3)
-    draw.line((0, h, w, 0), fill=(200, 16, 46), width=3)
-    # St George cross
-    draw.rectangle((w // 2 - 5, 0, w // 2 + 5, h), fill=(255, 255, 255))
-    draw.rectangle((0, h // 2 - 5, w, h // 2 + 5), fill=(255, 255, 255))
-    draw.rectangle((w // 2 - 3, 0, w // 2 + 3, h), fill=(200, 16, 46))
-    draw.rectangle((0, h // 2 - 3, w, h // 2 + 3), fill=(200, 16, 46))
-    img.save(ASSETS / "flag-gb.png", "PNG")
+    stripe = h / 13
+    for i in range(13):
+        if i % 2 == 0:
+            y0 = round(i * stripe)
+            y1 = round((i + 1) * stripe)
+            draw.rectangle((0, y0, w, y1), fill=red)
+    canton_w, canton_h = 21, round(7 * stripe)
+    draw.rectangle((0, 0, canton_w, canton_h), fill=(10, 49, 97))
+    for row, count in enumerate((6, 5, 6, 5, 6)):
+        y = 2 + row * 2
+        x0 = 2 if count == 6 else 4
+        for col in range(count):
+            x = x0 + col * 3
+            draw.point((x, y), fill=(255, 255, 255))
+            draw.point((x + 1, y), fill=(255, 255, 255))
+    img.save(ASSETS / "flag-us.png", "PNG")
 
 
 def render_icon() -> None:
@@ -143,6 +149,6 @@ if __name__ == "__main__":
     render_hero()
     render_icon()
     render_flag_ru()
-    render_flag_gb()
+    render_flag_us()
     print(ASSETS / "flag-ru.png")
-    print(ASSETS / "flag-gb.png")
+    print(ASSETS / "flag-us.png")

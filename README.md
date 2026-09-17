@@ -3,7 +3,7 @@
 <p>
   <img src="assets/flag-ru.png" alt="RU" height="14"> <strong>Русский</strong>
   &nbsp;·&nbsp;
-  <a href="README.en.md"><img src="assets/flag-gb.png" alt="EN" height="14"> English</a>
+  <a href="README.en.md"><img src="assets/flag-us.png" alt="EN" height="14"> English</a>
 </p>
 
 <p align="center">
