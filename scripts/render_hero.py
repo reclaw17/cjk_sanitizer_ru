@@ -38,7 +38,32 @@ def rr(draw: ImageDraw.ImageDraw, box, radius: int, fill, outline=None, width: i
     draw.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=width)
 
 
-def render_hero() -> None:
+COPY_RU = {
+    "line1": "Кириллица и код остаются.",
+    "line2": "Чужие письменности вырезаются.",
+    "chips": ("Кириллица", "Латиница", "Код цел", "CJK режется"),
+    "comment": "# русский и код не трогаем",
+    "before": "ДО",
+    "after": "ПОСЛЕ",
+    "reply": "Ответ: готово",
+    "png": "hero.png",
+    "jpg": "hero.jpg",
+}
+
+COPY_EN = {
+    "line1": "Cyrillic and code stay.",
+    "line2": "Foreign scripts get stripped.",
+    "chips": ("Cyrillic", "Latin", "Code stays", "CJK stripped"),
+    "comment": "# keep Russian and code",
+    "before": "BEFORE",
+    "after": "AFTER",
+    "reply": "Reply: done",
+    "png": "hero-en.png",
+    "jpg": "hero-en.jpg",
+}
+
+
+def render_hero(copy: dict[str, object] = COPY_RU) -> None:
     img = Image.new("RGB", (W, H), BG)
     glow = Image.new("RGB", (W, H), BG)
     ImageDraw.Draw(glow).ellipse((1080, -40, 2100, 900), fill=(18, 42, 86))
@@ -48,20 +73,18 @@ def render_hero() -> None:
     draw.text((1380, 250), "Я", font=fnt(NOTO_BD, 300), fill=(15, 26, 48))
 
     rr(draw, (72, 72, 212, 212), 36, WHITE)
-    # Center Я in the icon by bbox
     ya = fnt(NOTO_BD, 92)
     bbox = draw.textbbox((0, 0), "Я", font=ya)
     tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
     draw.text((72 + (140 - tw) / 2 - bbox[0], 72 + (140 - th) / 2 - bbox[1]), "Я", font=ya, fill=BLUE)
 
     draw.text((240, 84), "cjk_sanitizer_ru", font=fnt(FIRA_BD, 54), fill=TEXT)
-    draw.text((240, 154), "Кириллица и код остаются.", font=fnt(NOTO, 28), fill=MUTED)
-    draw.text((240, 192), "Чужие письменности вырезаются.", font=fnt(NOTO, 28), fill=MUTED)
+    draw.text((240, 154), str(copy["line1"]), font=fnt(NOTO, 28), fill=MUTED)
+    draw.text((240, 192), str(copy["line2"]), font=fnt(NOTO, 28), fill=MUTED)
 
-    chips = ("Кириллица", "Латиница", "Код цел", "CJK режется")
     x = 72
     face = fnt(NOTO_MD, 22)
-    for label in chips:
+    for label in copy["chips"]:
         tw = int(draw.textlength(label, font=face))
         box = (x, 250, x + tw + 40, 304)
         rr(draw, box, 14, CHIP, outline=LINE)
@@ -72,26 +95,26 @@ def render_hero() -> None:
     mono = fnt(MONO, 26)
     draw.text((104, 372), "from sanitize import sanitize", font=mono, fill=(125, 211, 252))
     draw.text((104, 420), "cleaned = sanitize(text)", font=mono, fill=TEXT)
-    draw.text((104, 480), "# русский и код не трогаем", font=mono, fill=(110, 125, 148))
+    draw.text((104, 480), str(copy["comment"]), font=mono, fill=(110, 125, 148))
 
     rr(draw, (972, 72, 1928, 300), 20, CARD, outline=(110, 48, 60))
     draw.ellipse((1004, 100, 1032, 128), fill=RED)
-    draw.text((1052, 92), "ДО", font=fnt(NOTO_BD, 28), fill=RED)
-    draw.text((1004, 156), "Ответ: готово", font=fnt(NOTO, 32), fill=TEXT)
+    draw.text((1052, 92), str(copy["before"]), font=fnt(NOTO_BD, 28), fill=RED)
+    draw.text((1004, 156), str(copy["reply"]), font=fnt(NOTO, 32), fill=TEXT)
     draw.text((1004, 214), "你好 안녕하세요", font=fnt(CJK, 32), fill=RED)
 
     draw.polygon([(1428, 324), (1476, 324), (1452, 356)], fill=BLUE)
 
     rr(draw, (972, 376, 1928, 604), 20, CARD, outline=(32, 96, 64))
     draw.ellipse((1004, 404, 1032, 432), fill=GREEN)
-    draw.text((1052, 396), "ПОСЛЕ", font=fnt(NOTO_BD, 28), fill=GREEN)
-    draw.text((1004, 476), "Ответ: готово", font=fnt(NOTO, 34), fill=TEXT)
+    draw.text((1052, 396), str(copy["after"]), font=fnt(NOTO_BD, 28), fill=GREEN)
+    draw.text((1004, 476), str(copy["reply"]), font=fnt(NOTO, 34), fill=TEXT)
 
     draw.text((72, 640), "Hermes Agent plugin", font=fnt(NOTO, 24), fill=(80, 94, 114))
     draw.text((972, 640), "github.com/reclaw17/cjk_sanitizer_ru", font=fnt(NOTO, 24), fill=MUTED)
 
-    png = ASSETS / "hero.png"
-    jpg = ASSETS / "hero.jpg"
+    png = ASSETS / str(copy["png"])
+    jpg = ASSETS / str(copy["jpg"])
     img.save(png, "PNG", optimize=True)
     img.convert("RGB").save(jpg, "JPEG", quality=95, optimize=True)
     print(png, jpg, img.size)
@@ -146,7 +169,8 @@ def render_icon() -> None:
 
 if __name__ == "__main__":
     ASSETS.mkdir(parents=True, exist_ok=True)
-    render_hero()
+    render_hero(COPY_RU)
+    render_hero(COPY_EN)
     render_icon()
     render_flag_ru()
     render_flag_us()
