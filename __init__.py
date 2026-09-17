@@ -1,31 +1,49 @@
-"""Strip unwanted Chinese/Russian characters from LLM output (MiniMax M2.7 quirk).
+"""Hermes plugin: strip foreign-script leaks, keep Russian/Latin/code."""
 
-Only strips Chinese and Cyrillic — Korean/Japanese are preserved for intentional use.
-Skips stripping entirely if the user prompt contains those scripts (language learning, etc).
-"""
+from __future__ import annotations
 
-import re
+import sys
+from pathlib import Path
 
-# Only Chinese + Cyrillic (the MiniMax glitch languages)
-_GLITCH_PATTERN = re.compile(
-    r'[\u2E80-\u2EFF'        # CJK radicals
-    r'\u3400-\u4DBF'         # CJK extension A
-    r'\u4E00-\u9FFF'         # CJK unified ideographs
-    r'\uF900-\uFAFF'         # CJK compatibility ideographs
-    r'\u0400-\u04FF'         # Cyrillic
-    r']+'
-)
+_PLUGIN_DIR = Path(__file__).resolve().parent
+if str(_PLUGIN_DIR) not in sys.path:
+    sys.path.insert(0, str(_PLUGIN_DIR))
+
+from sanitize import contains_foreign, sanitize as sanitize_response
+
+# session_id -> skip sanitizing this turn (user already used a foreign script)
+_skip_sessions: dict[str, bool] = {}
 
 
-def _sanitize(response_text: str, **kwargs) -> str | None:
-    cleaned = _GLITCH_PATTERN.sub('', response_text)
-    # Collapse multiple spaces/newlines left behind
-    cleaned = re.sub(r'  +', ' ', cleaned)
-    cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
-    if cleaned != response_text:
-        return cleaned.strip()
+def reset_skip_flags() -> None:
+    _skip_sessions.clear()
+
+
+def on_pre_llm_call(
+    user_message: str = "",
+    session_id: str = "",
+    **kwargs,
+) -> None:
+    """Remember whether this turn's prompt uses a script we would strip.
+
+    Must return None: a string would be injected into the user message.
+    """
+    del kwargs
+    _skip_sessions[session_id or ""] = contains_foreign(user_message or "")
     return None
 
 
+def on_transform_llm_output(
+    response_text: str = "",
+    session_id: str = "",
+    **kwargs,
+) -> str | None:
+    del kwargs
+    if _skip_sessions.get(session_id or ""):
+        return None
+    return sanitize_response(response_text)
+
+
 def register(ctx):
-    ctx.register_hook("transform_llm_output", _sanitize)
+    ctx.register_hook("pre_llm_call", on_pre_llm_call)
+    ctx.register_hook("transform_llm_output", on_transform_llm_output)

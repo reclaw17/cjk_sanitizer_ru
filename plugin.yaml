@@ -1,5 +1,6 @@
-name: cjk_sanitizer
+name: cjk_sanitizer_ru
 version: "1.0.0"
-description: Strip unwanted Chinese (CJK) and Cyrillic characters from LLM output. Korean Hangul and Japanese Kana are preserved.
+description: Убирает CJK и другие чужие письменности из ответа модели. Кириллица, латиница и код не трогаются.
 provides_hooks:
   - transform_llm_output
+  - pre_llm_call
