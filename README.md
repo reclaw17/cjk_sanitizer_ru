@@ -1,7 +1,9 @@
 # CJK Sanitizer RU — плагин Hermes
 
+**Русский** · [English](README.en.md)
+
 <p align="center">
-  <img src="assets/hero.jpg" alt="CJK Sanitizer RU" width="800">
+  <img src="assets/hero.jpg" alt="cjk_sanitizer_ru: кириллица остаётся, чужие письменности вырезаются" width="800">
 </p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
